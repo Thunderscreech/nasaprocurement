@@ -1,0 +1,37 @@
+# Allowlist: ignore everything, then opt files in.  Keeps config.ini, logs, DB dumps,
+# Bluesky session tokens, rendered images and local backups out of a public repo.
+/*
+!/.gitignore
+!/README.md
+!/LICENSE
+!/config.example.ini
+!/crontab.example
+!/schema.sql
+!/composer.json
+!/composer.lock
+
+!/config.inc
+!/common.inc
+!/sam_http.inc
+!/render_lib.inc
+!/bluesky_lib.inc
+
+!/nasasamscraper.php
+!/get_description.php
+!/procurement_check.php
+!/render_opportunity.php
+!/render_addl_pages.php
+!/contract_monitor.php
+!/turnon.php
+!/turnoff.php
+!/nasatoot.sh
+
+!/templates/
+
+# Never, even if someone adds them to the list above
+config.ini
+*.bak*
+*.log
+*.sql.gz
+bluesky_session.json
+bluesky_config.ini

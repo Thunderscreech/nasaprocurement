@@ -1,0 +1,8 @@
+# Root crontab entries for the bot (adjust the path).  flock -n skips a run if the previous
+# one is still going; the log redirect sits inside -c so a skipped run can't truncate the log.
+*/20 * * * * flock -n /run/lock/nasaprocurement-nasasamscraper.lock -c 'php /opt/nasaprocurement/nasasamscraper.php > /opt/nasaprocurement/nasasamscraper.log 2>&1'
+*/10 * * * * flock -n /run/lock/nasaprocurement-procurement_check.lock -c 'php /opt/nasaprocurement/procurement_check.php > /opt/nasaprocurement/procurement_check.log 2>&1'
+20 * * * * flock -n /run/lock/nasaprocurement-contract_monitor.lock -c 'php /opt/nasaprocurement/contract_monitor.php > /opt/nasaprocurement/contract_monitor.log 2>&1'
+
+# Housekeeping: rendered images are only needed until they're posted
+0 1 * * * find /opt/nasaprocurement/rendered_opportunities/ -type f -mtime +30 -delete
