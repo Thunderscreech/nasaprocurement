@@ -183,8 +183,8 @@ function report_insert_error($noticeId, $error)
 	$seen		= @file($seen_file, FILE_IGNORE_NEW_LINES) ?: array();
 	if (in_array($noticeId, $seen)) return;
 	file_put_contents($seen_file, "$noticeId\n", FILE_APPEND);
-	$error		= preg_replace('/[^A-Za-z0-9 _.,:()\'-]/', ' ', substr($error, 0, 150));	//dy_discord wraps this in shell double quotes
-	dy_discord("NASAProcurement scraper could not save notice $noticeId: $error");
+	$error		= preg_replace('/[^A-Za-z0-9 _.,:()\'-]/', ' ', substr($error, 0, 150));	//keep the logged message plain
+	sc_log_error("NASAProcurement scraper could not save notice $noticeId: $error");
 }
 
 //Update last run - only when at least one search actually came back, so a stale last_run means trouble
