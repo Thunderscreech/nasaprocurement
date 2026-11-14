@@ -154,6 +154,10 @@ function bsky_session($force_new = false)
 		array('identifier' => $cfg['handle'], 'password' => $cfg['app_password']));
 	if (empty($r['body']['accessJwt'])) {
 		bsky_log("Login failed for {$cfg['handle']}.");
+		//A refused password breaks every post, so page for it (once per 3 hours, see errorlog.inc)
+		if (($r['code'] === 401 || $r['code'] === 403) && function_exists('sc_alert_critical')) {
+			sc_alert_critical("Bluesky login refused for {$cfg['handle']} (HTTP {$r['code']}): ".($r['body']['error'] ?? '').' '.($r['body']['message'] ?? ''), array('key' => 'post-auth-bluesky'));
+		}
 		bsky_session_forget();
 		return $session = null;
 	}

@@ -5,9 +5,37 @@ use Abraham\TwitterOAuth\TwitterOAuth;
 //Settings and secrets live in config.ini (not in git), see config.example.ini
 include_once __DIR__.'/config.inc';
 
-//DB connect - do it every time
-$conn = mysqli_connect(cfg('DB_HOST', 'localhost'), cfg('DB_USER'), cfg('DB_PASS')) or die ('Error connecting to mysql');
-mysqli_select_db($conn, cfg('DB_NAME', 'nasaprocurement')) or die("Error selecting DB");
+// Error reporting: routine problems go to logs/errors.md for the daily triage job, only critical ones to Discord
+include_once __DIR__.'/errorlog.inc';
+
+//DB connect - do it every time. PHP 8 throws on a failed connect instead of returning false: handle both
+try
+{
+	$conn	= @mysqli_connect(cfg('DB_HOST', 'localhost'), cfg('DB_USER'), cfg('DB_PASS'));
+	$__dberr= $conn ? '' : mysqli_connect_error().' (error '.mysqli_connect_errno().')';
+} catch (mysqli_sql_exception $e)
+{
+	$conn	= false;
+	$__dberr= $e->getMessage().' (error '.$e->getCode().')';
+}
+if (!$conn)
+{
+	sc_alert_critical("Cannot connect to MySQL: $__dberr", array('key' => 'db-connect', 'detail' => 'First seen in '.sc_err_script()));
+	die("Error connecting to mysql\n");
+}
+try
+{
+	$__ok	= mysqli_select_db($conn, cfg('DB_NAME', 'nasaprocurement'));
+} catch (mysqli_sql_exception $e)
+{
+	$__ok	= false;
+}
+if (!$__ok)
+{
+	sc_alert_critical('Cannot select database '.cfg('DB_NAME', 'nasaprocurement').': '.mysqli_error($conn), array('key' => 'db-select'));
+	die("Error selecting DB\n");
+}
+unset($__dberr, $__ok);
 
 /*
  * Run a prepared statement: values never get pasted into the SQL text, so quotes, backslashes

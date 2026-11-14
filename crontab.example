@@ -6,3 +6,4 @@
 
 # Housekeeping: rendered images are only needed until they're posted
 0 1 * * * find /opt/nasaprocurement/rendered_opportunities/ -type f -mtime +30 -delete
+55 7 * * * /home/chairboy/nasaprocurement/cron/error_triage.sh > /dev/null 2>&1   # daily Claude triage of logs/errors.md

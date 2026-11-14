@@ -102,7 +102,7 @@ function sam_health_update($ok, $error = '')
 	{
 		if (!empty($h['alerted']))
 		{
-			dy_discord("NASAProcurement scraper recovered: SAM.gov searches are working again after {$h['consecutive_failures']} failed run(s)");
+			sc_error_cleared('sam-search');	//SAM.gov searches work again: flag the errors.md entry as recovered
 		}
 		$h['consecutive_failures']	= 0;
 		$h['alerted']			= false;
@@ -114,7 +114,7 @@ function sam_health_update($ok, $error = '')
 		echo "Run failed ({$h['consecutive_failures']} in a row): $error\n";
 		if ($h['consecutive_failures'] >= SAM_ALERT_AFTER && empty($h['alerted']))
 		{
-			dy_discord("NASAProcurement scraper: SAM.gov searches have failed {$h['consecutive_failures']} runs in a row. Last error: ".sam_shell_safe($error));
+			sc_log_error("NASAProcurement scraper: SAM.gov searches have failed {$h['consecutive_failures']} runs in a row. Last error: ".sam_shell_safe($error), array('key' => 'sam-search'));
 			$h['alerted']	= true;
 		}
 	}
@@ -128,7 +128,7 @@ function sam_auth_alert($code)
 	$h	= @json_decode((string)@file_get_contents($file), true);
 	if (!is_array($h)) $h = array('consecutive_failures' => 0, 'alerted' => false, 'last_error' => '', 'auth_alerted_at' => 0);
 	if (time() - (int)($h['auth_alerted_at'] ?? 0) < 86400) return;
-	dy_discord("NASAProcurement: SAM.gov API key expired or invalid (HTTP $code). Scraper can't fetch anything until the key in common.inc is replaced.");
+	sc_alert_critical("NASAProcurement: SAM.gov API key expired or invalid (HTTP $code). Scraper can't fetch anything until the key in config.ini is replaced.", array('key' => 'sam-auth'));
 	$h['auth_alerted_at']	= time();
 	sam_save_atomic($file, json_encode($h, JSON_PRETTY_PRINT));
 }

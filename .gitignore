@@ -23,6 +23,9 @@
 !/render_addl_pages.php
 !/contract_monitor.php
 !/turnon.php
+!/errorlog.inc
+!/errors.php
+!/cron/
 !/turnoff.php
 !/nasatoot.sh
 

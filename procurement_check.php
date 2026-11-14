@@ -256,6 +256,11 @@ while ($row	= mysqli_fetch_assoc($result))
 			{
 				echo "Failed to post toot. Output:\n";
 				print_r($toot_result['output']);
+				//nasatoot.sh prints "... failed with status 401": a rejected token breaks every post, so page for it
+				if (preg_match('/failed with status (401|403)\b/', implode("\n", $toot_result['output']), $m))
+				{
+					sc_alert_critical("Mastodon rejected the bot's access token (HTTP {$m[1]})", array('key' => 'post-auth-mastodon'));
+				}
 			}
 		} else
 		{
@@ -295,7 +300,7 @@ while ($row	= mysqli_fetch_assoc($result))
 			if($give_up)
 			{
 				echo "Giving up on $noticeId after $attempts attempts ($failed failed).\n";
-				dy_discord("NASAProcurement gave up posting $noticeId to $failed after $attempts attempts");
+				sc_log_error("NASAProcurement gave up posting $noticeId to $failed after $attempts attempts");
 			} else
 			{
 				echo "Attempt $attempts of $max_attempts for $noticeId failed on $failed; will retry next run.\n";
